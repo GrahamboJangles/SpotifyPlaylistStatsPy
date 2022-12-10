@@ -2,6 +2,7 @@
 Easily get your Spotify playlist statistics with Python, such as average BPM, most frequent keys, danceability, energy, loudness, speechiness, acousticness, instrumentalness, liveness, valence, duration, and time signature.
 
 # Example output:
+```
 Track: All I Want for Christmas Is You
 Key: G
 Mode: major
@@ -50,3 +51,4 @@ average_liveness: 0.16607199999999997
 average_valence: 0.3917226666666668
 average_duration: 3:52
 average_time_signature: 3.8133333333333335  
+```
