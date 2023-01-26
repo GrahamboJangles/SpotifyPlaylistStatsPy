@@ -1,22 +1,21 @@
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
-client_id = "your_client_id"
-client_secret = "your_client_secret"
+client_id = "YOUR_CLIENT_ID"
+client_secret = "YOUR_CLIENT_SECRET"
 
 client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
-# Power Workout
-playlist_url = "https://open.spotify.com/playlist/37i9dQZF1DWUVpAXiEPK8P"
-# R&B Christmas
-playlist_url = "https://open.spotify.com/playlist/37i9dQZF1DX4ELVW61Sklr"
+playlist_url = input("Enter playlist link: ")
 
-print_individual = True
 
 playlist_id = playlist_url.split("/")[-1]
-playlist_id = playlist_id.split('&')[0]
 # print(playlist_id)
+playlist_id = playlist_id.split('?')[0]
+playlist_id = playlist_id.split('&')[0]
+
+# playlist_id = input("Enter playlist link: ")
 
 try:
     results = sp.playlist_tracks(playlist_id)
@@ -58,6 +57,13 @@ valence_list = []
 duration_ms_list = []
 time_signature_list = []
 
+# from pprint import pprint
+# pprint(str(results)[:10000])
+
+# try: results['items']
+# except: print(type(results))
+bpm_list = []
+key_list = []
 for track in results['items']:
     try:
         track_id = track['track']['id']
@@ -73,9 +79,11 @@ for track in results['items']:
     # Use the dictionary to map the numerical values of keys to letters
     key = audio_features[0]['key']
     key_letter = key_mapping[key]
+    key_list.append(key)
 
     # Add the BPM to the BPM sum
     bpm_sum += audio_features[0]['tempo']
+    
 
     # Increase the count of the key letter in the dictionary
     if key_letter not in key_counts:
@@ -85,6 +93,7 @@ for track in results['items']:
 
     key = audio_features[0]['key']
     bpm = audio_features[0]['tempo']
+    bpm_list.append(bpm)
     mode = audio_features[0]['mode']
     danceability = audio_features[0]['danceability']
     energy = audio_features[0]['energy']
@@ -111,24 +120,23 @@ for track in results['items']:
     duration_ms_list.append(duration_ms)
     time_signature_list.append(time_signature)
 
-    if print_individual:
-        print(f"Track: {track['track']['name']}")
-        # print(f"Key: {key}")
-        # Print the key in letter form
-        print(f"Key: {key_letter}")
-        print(f"Mode: {mode_string}")
-        print(f"BPM: {bpm}")
-        print(f"Danceability: {danceability}")
-        print(f"Energy: {energy}")
-        print(f"Loudness: {loudness}")
-        print(f"Speechiness: {speechiness}")
-        print(f"Acousticness: {acousticness}")
-        print(f"Instrumentalness: {instrumentalness}")
-        print(f"Liveness: {liveness}")
-        print(f"Valence: {valence}")
-        print(f"Duration: {duration_ms}")
-        print(f"Time Signature: {time_signature}")
-        print("--------------------------------------")
+    print(f"Track: {track['track']['name']}")
+    # print(f"Key: {key}")
+    # Print the key in letter form
+    print(f"Key: {key_letter}")
+    print(f"Mode: {mode_string}")
+    print(f"BPM: {bpm}")
+    print(f"Danceability: {danceability}")
+    print(f"Energy: {energy}")
+    print(f"Loudness: {loudness}")
+    print(f"Speechiness: {speechiness}")
+    print(f"Acousticness: {acousticness}")
+    print(f"Instrumentalness: {instrumentalness}")
+    print(f"Liveness: {liveness}")
+    print(f"Valence: {valence}")
+    print(f"Duration: {duration_ms}")
+    print(f"Time Signature: {time_signature}")
+    print("--------------------------------------")
     
 
 # Calculate the average BPM by dividing the BPM sum by the number of tracks
@@ -167,3 +175,21 @@ print("average_liveness:", average_liveness)
 print("average_valence:", average_valence)
 print("average_duration:", formatted_duration)
 print("average_time_signature:", average_time_signature)
+
+# Calculate probability of listening to a song in the key of C or C#
+probability = (key_counts['C'] / len(results['items'])) * 100
+
+# Print the probability
+print(f"You are {probability} more likely to listen to a song if it is in the note C or C#")
+
+import statistics
+
+bpm_std = statistics.stdev(bpm_list)
+print("Standard deviation of BPM:", bpm_std)
+bpm_variability = (bpm_std / average_bpm) * 100
+print(f"BPM variability: {bpm_variability:.2f}%")
+
+key_std = statistics.stdev(key_list)
+print("Standard deviation of key:", key_std)
+key_variability = (key_std / len(key_mapping)) * 100
+print(f"Key variability: {key_variability:.2f}%")
